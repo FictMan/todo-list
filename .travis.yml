@@ -1,11 +1,14 @@
 language: ruby
 
-install:
-  - bundle install
+services:
+  - postgresql
 
 before_script:
+  - gem install bundler
+  - bundle install
+  - bundle exec rake db:create
   - bundle exec rake db:migrate
 
-  script:
+script:
   - bundle exec rubocop
-  - bundle exec rake test
+  - bundle exec rspec spec
