@@ -10,5 +10,6 @@ before_script:
   - bundle exec rake db:migrate
 
 script:
-  - bundle exec rubocop
+  bundle exec rubocop:
+    - config: ".rubocop.yml"
   - bundle exec rspec spec
