@@ -6,6 +6,7 @@ import InlineEdit from '../InlineEdit'
 import DatePicker from 'react-datepicker'
 import moment from 'moment'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
+import { confirmAlert } from 'react-confirm-alert'
 
 class Tasks extends React.Component {
   constructor(props) {
@@ -120,12 +121,24 @@ class Tasks extends React.Component {
 
   deleteTask = (i, task) => () => {
     const row = this.state.tasks
-    row.splice(i, 1)
-    this.setState({
-      tasks: row,
-      activeTaskCount: this.handleItemLeft(row)
+    confirmAlert({
+      title: 'Confirm to submit',
+      message: 'Are you sure to do this.',
+      buttons: [
+        {
+          label: 'Yes',
+          onClick: () => {
+            row.splice(i, 1)
+            this.setState({
+              tasks: row,
+              activeTaskCount: this.handleItemLeft(row)
+            })
+            api.destroy(`tasks/${task.id}`)
+          }
+        },
+        { label: 'No' }
+      ]
     })
-    api.destroy(`tasks/${task.id}`)
   }
 
   deleteCompletedTask = () => {
@@ -185,13 +198,13 @@ class Tasks extends React.Component {
                   labelClassName={`completed-action w-100 title-${task.status}`}
                   labelId={task.id}
                   labelTooltip={task.completed_at}
+                  inputClassName={'edit-input'}
                   inputDisabled={task.status}
                   onFocusOut={this.handleFocusOut}
                 />
               </div>
               <div className='col-md-auto col-sm-auto col-auto text-right'>
                 <a
-                  data-confirm='Are you sure?'
                   id={`data_${task.id}`}
                   onClick={this.deleteTask(i, task)}
                   className='action delete-action'

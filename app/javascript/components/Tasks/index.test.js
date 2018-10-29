@@ -89,15 +89,21 @@ describe('Tasks', () => {
     expect(wrapper.find('div.row-task')).toHaveLength(2)
   })
 
-  it ('check count active tasks', () => {
-    expect(wrapper.state('activeTaskCount')).toBe('2 items left')
+  describe('click on delete', () => {
+    beforeAll(() => {
+      fetchMock.delete('/api/v1/tasks/3', {})
+      wrapper.find('#data_3').simulate('click')
+      document.getElementsByTagName('button')[0].click()
+      wrapper.update(<Tasks />)
+    })
+
+    it ('using modal form', () => {
+      expect(wrapper.find('div.row-task')).toHaveLength(1)
+    })
   })
 
-  it ('click on delete', () => {
-    fetchMock.delete('/api/v1/tasks/3', {})
-    wrapper.find('#data_3').simulate('click')
-
-    expect(wrapper.find('div.row-task')).toHaveLength(1)
+  it ('check count active tasks', () => {
+    expect(wrapper.state('activeTaskCount')).toBe('1 item left')
   })
 
   describe('checkAll', () => {
