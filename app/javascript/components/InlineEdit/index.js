@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import ReactTooltip from 'react-tooltip'
+import api from '../lib/requestApi'
 
 const escKey = 27
 const enterKey = 13
@@ -14,6 +15,14 @@ export default class InlineEdit extends React.Component {
       prevText: props.text,
       text: props.text
     }
+  }
+
+  UNSAFE_componentWillReceiveProps() {
+    const { text, prevText } = this.state
+    this.setState({ isEditing: false })
+    if (text === prevText) return
+    api.put(`tasks/${this.props.labelId}`, { title: text })
+    // this.props.onFocusOut(this.props.labelId, text)
   }
 
   _handleFocus = () => {

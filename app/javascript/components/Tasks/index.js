@@ -91,19 +91,24 @@ class Tasks extends React.Component {
       completed: 'active'
     }
 
-    const newTime = {
-      active: null,
-      completed: moment().format('D MMM YYYY HH:mm')
-    }
+    new Promise((resolve) => {
+      (<InlineEdit text={''} inputDisabled={newStatus[task.status]} />),
+      resolve()
+    }).then(() => {
+      const newTime = {
+        active: null,
+        completed: moment().format('D MMM YYYY HH:mm')
+      }
 
-    api.put(`${newStatus[task.status]}_tasks/${task.id}`).then(() => {
-      this.setState((prevState) => {
-        prevState.tasks[index].status = newStatus[task.status]
-        prevState.tasks[index].completed_at = newTime[task.status]
-        return {
-          tasks: [...prevState.tasks],
-          activeTaskCount: this.handleItemLeft(this.state.tasks)
-        }
+      api.put(`${newStatus[task.status]}_tasks/${task.id}`).then(() => {
+        this.setState((prevState) => {
+          prevState.tasks[index].status = newStatus[task.status]
+          prevState.tasks[index].completed_at = newTime[task.status]
+          return {
+            tasks: [...prevState.tasks],
+            activeTaskCount: this.handleItemLeft(this.state.tasks)
+          }
+        })
       })
     })
   }
