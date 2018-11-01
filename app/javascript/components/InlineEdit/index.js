@@ -16,6 +16,11 @@ export default class InlineEdit extends React.Component {
     }
   }
 
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    if (nextProps.inputDisabled === this.props.inputDisabled) return
+    this.setState({ isEditing: false })
+  }
+
   _handleFocus = () => {
     if (this.props.inputDisabled === 'completed') return
 
@@ -31,7 +36,11 @@ export default class InlineEdit extends React.Component {
     })
   }
 
-  _handleChange = () => this.setState({ text: this.textInput.value })
+  _handleChange = () => {
+    this.setState({ text: this.textInput.value }, () => {
+      this.props.onCurrentText(this.textInput.value)
+    })
+  }
 
   _handleEvent = (e) => {
     if (e.charCode === enterKey) {
@@ -95,5 +104,6 @@ InlineEdit.propTypes = {
   inputClassName: PropTypes.string,
   inputDisabled: PropTypes.string,
   inputBorderWidth: PropTypes.string,
-  onFocusOut: PropTypes.func
+  onFocusOut: PropTypes.func,
+  onCurrentText: PropTypes.func
 }
