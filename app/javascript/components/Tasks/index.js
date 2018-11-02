@@ -1,6 +1,7 @@
 import React from 'react'
 import Title from '../Title'
 import isEmpty from 'lodash.isempty'
+import findIndex from 'lodash.findindex'
 import api from '../lib/requestApi'
 import InlineEdit from '../InlineEdit'
 import DatePicker from 'react-datepicker'
@@ -15,6 +16,7 @@ class Tasks extends React.Component {
     this.state = {
       tasks: [],
       title: '',
+      text: '',
       completed_to: null,
       errors: {},
       activeTaskCount: ''
@@ -85,26 +87,38 @@ class Tasks extends React.Component {
     }
   }
 
-  updateStatusTask = (task, index) => () => {
+  onCurrentText = (text) => this.setState({ text })
+
+  updateTask = (task, params, stateParams) => {
+    this.setState((prevState) => {
+      const index = findIndex(prevState.tasks, ['id', task.id])
+      prevState.tasks[index] = { ...task, ...params }
+      return {
+        tasks: [...prevState.tasks],
+        ...stateParams
+      }
+    })
+  }
+
+  updateStatusTask = (task) => () => {
+    const { tasks, text } = this.state
     const newStatus = {
       active: 'completed',
       completed: 'active'
     }
 
     const newTime = {
-      active: null,
-      completed: moment().format('D MMM YYYY HH:mm')
+      active: moment().format('D MMM YYYY HH:mm'),
+      completed: null
     }
+    {(<InlineEdit text={''} inputDisabled={newStatus[task.status]} />)}
+    if (!isEmpty(this.state.text)) api.put(`tasks/${task.id}`, { title: text })
 
     api.put(`${newStatus[task.status]}_tasks/${task.id}`).then(() => {
-      this.setState((prevState) => {
-        prevState.tasks[index].status = newStatus[task.status]
-        prevState.tasks[index].completed_at = newTime[task.status]
-        return {
-          tasks: [...prevState.tasks],
-          activeTaskCount: this.handleItemLeft(this.state.tasks)
-        }
-      })
+      this.updateTask(task,
+        { title: text, status: newStatus[task.status], completed_at: newTime[task.status] },
+        { text: '', activeTaskCount: this.handleItemLeft(tasks) }
+      )
     })
   }
 
@@ -201,6 +215,7 @@ class Tasks extends React.Component {
                   inputClassName={'edit-input'}
                   inputDisabled={task.status}
                   onFocusOut={this.handleFocusOut}
+                  onCurrentText={this.onCurrentText}
                 />
               </div>
               <div className='col-md-auto col-sm-auto col-auto text-right'>
